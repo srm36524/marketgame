@@ -30,17 +30,12 @@ def dashboard_page():
     for team in st.session_state.team_names:
 
         stats = portfolio_statistics(
-
             INITIAL_CAPITAL,
-
-            st.session_state.portfolio_value[team],
-
-            st.session_state.returns_history[team],
-
+            current_value,
+            returns,
             RISK_FREE_RATE,
-
-            periods
-
+            periods,
+           st.session_state.value_history[team]
         )
 
         dashboard.append({
