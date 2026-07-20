@@ -8,25 +8,33 @@ from config import (
 
 def allocation_page():
 
-    st.header("Portfolio Allocation")
+    st.header("📂 Portfolio Allocation")
 
-    st.info(
-        "Each team must allocate exactly 100%."
+    st.write(
+        """
+Each team must allocate **100%** across the four asset classes.
+
+Allocation changes will be used in the next market iteration.
+"""
     )
 
     if st.session_state.allocation_locked:
 
         st.warning(
-            "Allocations are locked by the teacher."
+            "🔒 Allocations are locked by the teacher."
         )
 
-    summary = []
+    allocation_data = []
+
+    # ---------------------------------------------------
+    # Input Table
+    # ---------------------------------------------------
 
     for team in st.session_state.team_names:
 
-        st.markdown(f"## {team}")
+        current = st.session_state.allocations[team]
 
-        old = st.session_state.allocations[team]
+        st.subheader(team)
 
         c1, c2, c3, c4 = st.columns(4)
 
@@ -36,7 +44,7 @@ def allocation_page():
                 "Equity %",
                 min_value=0,
                 max_value=100,
-                value=int(old["Equity"]),
+                value=int(current["Equity"]),
                 key=f"{team}_equity",
                 disabled=st.session_state.allocation_locked
             )
@@ -47,7 +55,7 @@ def allocation_page():
                 "Bonds %",
                 min_value=0,
                 max_value=100,
-                value=int(old["Bonds"]),
+                value=int(current["Bonds"]),
                 key=f"{team}_bonds",
                 disabled=st.session_state.allocation_locked
             )
@@ -58,7 +66,7 @@ def allocation_page():
                 "Gold %",
                 min_value=0,
                 max_value=100,
-                value=int(old["Gold"]),
+                value=int(current["Gold"]),
                 key=f"{team}_gold",
                 disabled=st.session_state.allocation_locked
             )
@@ -69,84 +77,108 @@ def allocation_page():
                 "Cash %",
                 min_value=0,
                 max_value=100,
-                value=int(old["Cash"]),
+                value=int(current["Cash"]),
                 key=f"{team}_cash",
                 disabled=st.session_state.allocation_locked
             )
 
-        allocation = {
-
-            "Equity": equity,
-            "Bonds": bonds,
-            "Gold": gold,
-            "Cash": cash
-
-        }
-
-        total = sum(allocation.values())
+        total = equity + bonds + gold + cash
 
         if total == 100:
 
-            st.success("Allocation = 100%")
+            st.success("✅ Allocation = 100%")
 
         else:
 
             st.error(
-                f"Allocation = {total}%"
+                f"Allocation = {total}% (Must equal 100%)"
             )
 
-        if st.button(
-            f"Save {team}",
-            key=f"save_{team}",
-            disabled=st.session_state.allocation_locked
-        ):
-
-            if total != 100:
-
-                st.error(
-                    "Allocation must total 100%."
-                )
-
-            else:
-
-                st.session_state.previous_allocations[
-                    team
-                ] = st.session_state.allocations[
-                    team
-                ].copy()
-
-                st.session_state.allocations[
-                    team
-                ] = allocation
-
-                st.success(
-                    "Allocation Saved."
-                )
-
-        row = {
+        allocation_data.append({
 
             "Team": team,
 
-            "Equity": allocation["Equity"],
+            "Equity": equity,
 
-            "Bonds": allocation["Bonds"],
+            "Bonds": bonds,
 
-            "Gold": allocation["Gold"],
+            "Gold": gold,
 
-            "Cash": allocation["Cash"]
+            "Cash": cash,
 
-        }
+            "Total": total
 
-        summary.append(row)
+        })
 
         st.divider()
 
-    st.subheader("Current Allocation Summary")
+    # ---------------------------------------------------
+    # Summary Table
+    # ---------------------------------------------------
 
-    df = pd.DataFrame(summary)
+    df = pd.DataFrame(allocation_data)
+
+    st.subheader("Current Allocations")
 
     st.dataframe(
         df,
         use_container_width=True,
         hide_index=True
     )
+
+    # ---------------------------------------------------
+    # Save Button
+    # ---------------------------------------------------
+
+    if st.button(
+        "💾 Save All Teams",
+        disabled=st.session_state.allocation_locked
+    ):
+
+        valid = True
+
+        for row in allocation_data:
+
+            if row["Total"] != 100:
+
+                valid = False
+
+        if not valid:
+
+            st.error(
+                "One or more teams do not total 100%."
+            )
+
+            return
+
+        # Save all allocations
+
+        for row in allocation_data:
+
+            team = row["Team"]
+
+            st.session_state.previous_allocations[
+                team
+            ] = st.session_state.allocations[
+                team
+            ].copy()
+
+            st.session_state.allocations[
+                team
+            ] = {
+
+                "Equity": row["Equity"],
+
+                "Bonds": row["Bonds"],
+
+                "Gold": row["Gold"],
+
+                "Cash": row["Cash"]
+
+            }
+
+        st.success(
+            "✅ All allocations saved successfully."
+        )
+
+        st.balloons()
