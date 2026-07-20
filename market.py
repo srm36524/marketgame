@@ -73,16 +73,29 @@ def market_page():
             f"Scenario : {scenario}"
         )
 
-        market_df = pd.DataFrame({
+        market_rows = []
 
-            "Asset":list(market.keys()),
+for asset, values in market.items():
 
-            "Return %":[
-                round(v*100,2)
-                for v in market.values()
-            ]
+    price = values["price"]
 
-        })
+    income = values["income"]
+
+    total = price + income
+
+    market_rows.append({
+
+        "Asset": asset,
+
+        "Price Return %": round(price * 100, 2),
+
+        "Income %": round(income * 100, 2),
+
+        "Total Return %": round(total * 100, 2)
+
+    })
+
+market_df = pd.DataFrame(market_rows)
 
         st.dataframe(
             market_df,
