@@ -10,12 +10,12 @@ from config import (
 
 def initialize_session():
 
-    # ---------------------------------------------------
-    # Basic Settings
-    # ---------------------------------------------------
+    # =====================================================
+    # BASIC SETTINGS
+    # =====================================================
 
     if "team_names" not in st.session_state:
-        st.session_state.team_names = TEAM_NAMES
+        st.session_state.team_names = TEAM_NAMES.copy()
 
     if "initial_capital" not in st.session_state:
         st.session_state.initial_capital = INITIAL_CAPITAL
@@ -26,9 +26,9 @@ def initialize_session():
     if "iteration" not in st.session_state:
         st.session_state.iteration = 1
 
-    # ---------------------------------------------------
-    # Portfolio Values
-    # ---------------------------------------------------
+    # =====================================================
+    # CURRENT PORTFOLIO VALUE
+    # =====================================================
 
     if "portfolio_value" not in st.session_state:
 
@@ -37,9 +37,9 @@ def initialize_session():
             for team in TEAM_NAMES
         }
 
-    # ---------------------------------------------------
-    # Current Allocation
-    # ---------------------------------------------------
+    # =====================================================
+    # CURRENT ALLOCATION
+    # =====================================================
 
     if "allocations" not in st.session_state:
 
@@ -48,9 +48,10 @@ def initialize_session():
             for team in TEAM_NAMES
         }
 
-    # ---------------------------------------------------
-    # Previous Allocation
-    # ---------------------------------------------------
+    # =====================================================
+    # PREVIOUS ALLOCATION
+    # Used for transaction cost calculation
+    # =====================================================
 
     if "previous_allocations" not in st.session_state:
 
@@ -59,20 +60,9 @@ def initialize_session():
             for team in TEAM_NAMES
         }
 
-    # ---------------------------------------------------
-    # Returns History
-    # ---------------------------------------------------
-
-    if "returns_history" not in st.session_state:
-
-        st.session_state.returns_history = {
-            team: []
-            for team in TEAM_NAMES
-        }
-
-    # ---------------------------------------------------
-    # Portfolio Value History
-    # ---------------------------------------------------
+    # =====================================================
+    # VALUE HISTORY
+    # =====================================================
 
     if "value_history" not in st.session_state:
 
@@ -81,9 +71,42 @@ def initialize_session():
             for team in TEAM_NAMES
         }
 
-    # ---------------------------------------------------
-    # Transaction Cost History
-    # ---------------------------------------------------
+    # =====================================================
+    # RETURN HISTORY
+    # =====================================================
+
+    if "returns_history" not in st.session_state:
+
+        st.session_state.returns_history = {
+            team: []
+            for team in TEAM_NAMES
+        }
+
+    # =====================================================
+    # CAPITAL RETURN HISTORY
+    # =====================================================
+
+    if "capital_return_history" not in st.session_state:
+
+        st.session_state.capital_return_history = {
+            team: []
+            for team in TEAM_NAMES
+        }
+
+    # =====================================================
+    # INCOME RETURN HISTORY
+    # =====================================================
+
+    if "income_return_history" not in st.session_state:
+
+        st.session_state.income_return_history = {
+            team: []
+            for team in TEAM_NAMES
+        }
+
+    # =====================================================
+    # TRANSACTION COST HISTORY
+    # =====================================================
 
     if "transaction_cost_history" not in st.session_state:
 
@@ -92,9 +115,9 @@ def initialize_session():
             for team in TEAM_NAMES
         }
 
-    # ---------------------------------------------------
-    # Turnover History
-    # ---------------------------------------------------
+    # =====================================================
+    # TURNOVER HISTORY
+    # =====================================================
 
     if "turnover_history" not in st.session_state:
 
@@ -103,25 +126,19 @@ def initialize_session():
             for team in TEAM_NAMES
         }
 
-    # ---------------------------------------------------
-    # Market History
-    # ---------------------------------------------------
+    # =====================================================
+    # MARKET HISTORY
+    # =====================================================
 
     if "market_history" not in st.session_state:
-
         st.session_state.market_history = []
 
-    # ---------------------------------------------------
-    # Current Market Scenario
-    # ---------------------------------------------------
-
     if "current_market" not in st.session_state:
-
         st.session_state.current_market = None
 
-    # ---------------------------------------------------
-    # Teacher Controls
-    # ---------------------------------------------------
+    # =====================================================
+    # TEACHER CONTROLS
+    # =====================================================
 
     if "allocation_locked" not in st.session_state:
         st.session_state.allocation_locked = False
@@ -132,9 +149,9 @@ def initialize_session():
     if "game_finished" not in st.session_state:
         st.session_state.game_finished = False
 
-    # ---------------------------------------------------
-    # Leaderboard Cache
-    # ---------------------------------------------------
+    # =====================================================
+    # CLASS LEADERBOARD
+    # =====================================================
 
     if "leaderboard" not in st.session_state:
         st.session_state.leaderboard = None
