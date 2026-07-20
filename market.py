@@ -73,7 +73,7 @@ def market_page():
             f"Scenario : {scenario}"
         )
 
-        market_rows = []
+market_rows = []
 
 for asset, values in market.items():
 
