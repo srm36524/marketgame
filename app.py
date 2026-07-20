@@ -33,7 +33,7 @@ initialize_session()
 # Header
 # ----------------------------------------------------
 
-st.title("📈 Portfolio Management Classroom Simulator")
+st.title("📈 Portfolio Management Classroom Simulator by SRM")
 
 st.markdown("""
 Simulate portfolio management across multiple market conditions.
