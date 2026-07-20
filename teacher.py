@@ -1,197 +1,268 @@
 import streamlit as st
-import pandas as pd
+
+from config import (
+    NUM_ITERATIONS,
+    INITIAL_CAPITAL,
+    DEFAULT_ALLOCATION
+)
 
 
 def teacher_page():
 
-    st.header("👨‍🏫 Teacher Control Panel")
+    st.header("👨‍🏫 Teacher Controls")
 
-    # ------------------------------------------
-    # Simulation Status
-    # ------------------------------------------
 
-    col1, col2, col3 = st.columns(3)
+    # --------------------------------------------------
+    # Simulation Controls
+    # --------------------------------------------------
 
-    with col1:
-        st.metric(
-            "Current Iteration",
-            st.session_state.iteration
-        )
+    st.subheader(
+        "Simulation Controls"
+    )
 
-    with col2:
-        st.metric(
-            "Teams",
-            len(st.session_state.team_names)
-        )
-
-    with col3:
-        st.metric(
-            "Initial Capital",
-            f"₹{st.session_state.initial_capital:,.0f}"
-        )
-
-    st.divider()
-
-    # ------------------------------------------
-    # Allocation Controls
-    # ------------------------------------------
-
-    st.subheader("Allocation Controls")
 
     col1, col2 = st.columns(2)
 
+
     with col1:
 
-        if st.button("🔒 Lock Allocation"):
+        if st.button(
+            "🔒 Lock Allocations"
+        ):
 
             st.session_state.allocation_locked = True
 
             st.success(
-                "Allocations Locked"
+                "Student allocations locked."
             )
+
 
     with col2:
 
-        if st.button("🔓 Unlock Allocation"):
+        if st.button(
+            "🔓 Unlock Allocations"
+        ):
 
             st.session_state.allocation_locked = False
 
             st.success(
-                "Allocations Unlocked"
+                "Student allocations unlocked."
             )
 
-    st.write(
-        "Current Status :",
-        "🔒 Locked"
-        if st.session_state.allocation_locked
-        else "🟢 Open"
-    )
 
-    st.divider()
+    col3, col4 = st.columns(2)
 
-    # ------------------------------------------
-    # Market Controls
-    # ------------------------------------------
 
-    st.subheader("Market Controls")
+    with col3:
 
-    col1, col2 = st.columns(2)
-
-    with col1:
-
-        if st.button("⏸ Pause Market"):
+        if st.button(
+            "⏸ Pause Market"
+        ):
 
             st.session_state.market_locked = True
 
             st.warning(
-                "Market Paused"
+                "Market simulation paused."
             )
 
-    with col2:
 
-        if st.button("▶ Resume Market"):
+    with col4:
+
+        if st.button(
+            "▶ Resume Market"
+        ):
 
             st.session_state.market_locked = False
 
             st.success(
-                "Market Active"
+                "Market simulation resumed."
             )
 
-    st.write(
-        "Market Status :",
-        "⏸ Paused"
-        if st.session_state.market_locked
-        else "▶ Running"
+
+    st.divider()
+
+
+    # --------------------------------------------------
+    # Difficulty Settings
+    # --------------------------------------------------
+
+    st.subheader(
+        "Market Difficulty"
     )
 
-    st.divider()
 
-    # ------------------------------------------
-    # End Simulation
-    # ------------------------------------------
+    difficulty = st.selectbox(
 
-    st.subheader("Simulation")
+        "Choose Difficulty",
 
-    if st.button("🏁 Finish Simulation"):
-
-        st.session_state.game_finished = True
-
-        st.success(
-            "Simulation Completed"
-        )
-
-    st.divider()
-
-    # ------------------------------------------
-    # Portfolio Summary
-    # ------------------------------------------
-
-    st.subheader("Current Portfolio Values")
-
-    df = pd.DataFrame({
-
-        "Team":
-        st.session_state.team_names,
-
-        "Portfolio Value":[
-
-            st.session_state.portfolio_value[t]
-
-            for t in
-            st.session_state.team_names
-
+        [
+            "Easy",
+            "Medium",
+            "Hard"
         ]
 
-    })
-
-    st.dataframe(
-        df,
-        use_container_width=True,
-        hide_index=True
     )
 
-    st.divider()
 
-    # ------------------------------------------
-    # Current Market
-    # ------------------------------------------
-
-    st.subheader("Latest Market Scenario")
-
-    if st.session_state.current_market:
+    if difficulty == "Easy":
 
         st.info(
-            st.session_state.current_market
+            """
+Easy Mode:
+- More stable markets
+- Lower volatility
+- Less extreme events
+"""
         )
+
+
+    elif difficulty == "Medium":
+
+        st.info(
+            """
+Medium Mode:
+- Balanced bull and bear markets
+- Normal volatility
+"""
+        )
+
 
     else:
 
         st.warning(
-            "No market has been run yet."
+            """
+Hard Mode:
+- More crises
+- Higher volatility
+- Larger drawdowns
+"""
         )
+
 
     st.divider()
 
-    # ------------------------------------------
-    # Reset Simulation
-    # ------------------------------------------
 
-    st.subheader("Danger Zone")
+    # --------------------------------------------------
+    # Class Status
+    # --------------------------------------------------
 
-    confirm = st.checkbox(
-        "I understand this will erase everything."
+    st.subheader(
+        "Class Status"
     )
 
-    if confirm:
 
-        if st.button("🔄 Reset Simulation"):
+    c1, c2, c3 = st.columns(3)
 
-            keys = list(
-                st.session_state.keys()
-            )
 
-            for k in keys:
+    c1.metric(
 
-                del st.session_state[k]
+        "Iteration",
 
-            st.rerun()
+        st.session_state.iteration
+
+    )
+
+
+    c2.metric(
+
+        "Teams",
+
+        len(st.session_state.team_names)
+
+    )
+
+
+    c3.metric(
+
+        "Market",
+
+        st.session_state.current_market
+        if st.session_state.current_market
+        else "Not Started"
+
+    )
+
+
+    st.divider()
+
+
+    # --------------------------------------------------
+    # Reset Simulation
+    # --------------------------------------------------
+
+    st.subheader(
+        "Reset"
+    )
+
+
+    if st.button(
+        "🔄 Reset Complete Simulation"
+    ):
+
+        reset_simulation()
+
+        st.success(
+            "Simulation reset successfully."
+        )
+
+        st.rerun()
+
+
+
+def reset_simulation():
+
+
+    st.session_state.iteration = 1
+
+
+    st.session_state.game_finished = False
+
+
+    st.session_state.current_market = None
+
+
+    st.session_state.market_history = []
+
+
+    st.session_state.market_locked = False
+
+
+    st.session_state.allocation_locked = False
+
+
+    for team in st.session_state.team_names:
+
+
+        st.session_state.portfolio_value[team] = (
+            INITIAL_CAPITAL
+        )
+
+
+        st.session_state.allocations[team] = (
+            DEFAULT_ALLOCATION.copy()
+        )
+
+
+        st.session_state.previous_allocations[team] = (
+            DEFAULT_ALLOCATION.copy()
+        )
+
+
+        st.session_state.value_history[team] = [
+            INITIAL_CAPITAL
+        ]
+
+
+        st.session_state.returns_history[team] = []
+
+
+        st.session_state.capital_return_history[team] = []
+
+
+        st.session_state.income_return_history[team] = []
+
+
+        st.session_state.transaction_cost_history[team] = []
+
+
+        st.session_state.turnover_history[team] = []
