@@ -1,26 +1,41 @@
 import numpy as np
 
 
-# -----------------------------------------------------
+# =========================================================
 # Portfolio Return
-# -----------------------------------------------------
+# Returns:
+#   capital_return
+#   income_return
+#   total_return
+# =========================================================
 
 def portfolio_return(allocation, market_return):
 
-    r = 0
+    capital_return = 0
+    income_return = 0
 
     for asset in allocation:
 
-        r += (
-            allocation[asset] / 100
-        ) * market_return[asset]
+        weight = allocation[asset] / 100
 
-    return r
+        capital_return += (
+            weight *
+            market_return[asset]["price"]
+        )
+
+        income_return += (
+            weight *
+            market_return[asset]["income"]
+        )
+
+    total_return = capital_return + income_return
+
+    return capital_return, income_return, total_return
 
 
-# -----------------------------------------------------
+# =========================================================
 # Portfolio Turnover
-# -----------------------------------------------------
+# =========================================================
 
 def portfolio_turnover(old_alloc, new_alloc):
 
@@ -36,9 +51,9 @@ def portfolio_turnover(old_alloc, new_alloc):
     return turnover / 2
 
 
-# -----------------------------------------------------
+# =========================================================
 # Transaction Cost
-# -----------------------------------------------------
+# =========================================================
 
 def transaction_cost(
         portfolio_value,
@@ -53,26 +68,34 @@ def transaction_cost(
     return traded_amount * transaction_rate
 
 
-# -----------------------------------------------------
+# =========================================================
 # CAGR
-# -----------------------------------------------------
+# =========================================================
 
-def cagr(
-        initial_value,
-        final_value,
-        periods):
+def cagr(initial, final, periods):
 
     if periods <= 0:
         return 0
 
     return (
-        final_value / initial_value
-    ) ** (1 / periods) - 1
+        (final / initial) ** (1 / periods)
+    ) - 1
 
 
-# -----------------------------------------------------
-# Annualized Volatility
-# -----------------------------------------------------
+# =========================================================
+# Total Return
+# =========================================================
+
+def total_return(initial, final):
+
+    return (
+        final / initial
+    ) - 1
+
+
+# =========================================================
+# Volatility
+# =========================================================
 
 def volatility(returns):
 
@@ -85,9 +108,9 @@ def volatility(returns):
     ) * np.sqrt(len(returns))
 
 
-# -----------------------------------------------------
+# =========================================================
 # Average Return
-# -----------------------------------------------------
+# =========================================================
 
 def average_return(returns):
 
@@ -97,9 +120,9 @@ def average_return(returns):
     return np.mean(returns)
 
 
-# -----------------------------------------------------
+# =========================================================
 # Sharpe Ratio
-# -----------------------------------------------------
+# =========================================================
 
 def sharpe_ratio(
         returns,
@@ -108,12 +131,12 @@ def sharpe_ratio(
     if len(returns) < 2:
         return 0
 
-    avg = average_return(returns)
-
     vol = volatility(returns)
 
     if vol == 0:
         return 0
+
+    avg = average_return(returns)
 
     return (
         avg -
@@ -121,95 +144,73 @@ def sharpe_ratio(
     ) / vol
 
 
-# -----------------------------------------------------
+# =========================================================
 # Maximum Drawdown
-# -----------------------------------------------------
+# =========================================================
 
 def max_drawdown(values):
 
-    values = np.array(values)
+    if len(values) == 0:
+        return 0
 
     peak = values[0]
+    max_dd = 0
 
-    drawdown = 0
+    for value in values:
 
-    for v in values:
+        if value > peak:
+            peak = value
 
-        if v > peak:
-            peak = v
+        dd = (peak - value) / peak
 
-        dd = (peak - v) / peak
+        if dd > max_dd:
+            max_dd = dd
 
-        if dd > drawdown:
-            drawdown = dd
-
-    return drawdown
-
-
-# -----------------------------------------------------
-# Total Return
-# -----------------------------------------------------
-
-def total_return(
-        initial_value,
-        final_value):
-
-    return (
-        final_value /
-        initial_value
-    ) - 1
+    return max_dd
 
 
-# -----------------------------------------------------
+# =========================================================
 # Portfolio Statistics
-# -----------------------------------------------------
+# =========================================================
 
 def portfolio_statistics(
         initial_value,
         current_value,
         returns,
         risk_free_rate,
-        periods):
+        periods,
+        value_history):
 
-    return {
+    stats = {}
 
-        "Current Value": current_value,
+    stats["Current Value"] = current_value
 
-        "Total Return":
-        total_return(
-            initial_value,
-            current_value
-        ),
+    stats["Total Return"] = total_return(
+        initial_value,
+        current_value
+    )
 
-        "CAGR":
-        cagr(
-            initial_value,
-            current_value,
-            periods
-        ),
+    stats["CAGR"] = cagr(
+        initial_value,
+        current_value,
+        periods
+    )
 
-        "Risk":
-        volatility(
-            returns
-        ),
+    stats["Risk"] = volatility(
+        returns
+    )
 
-        "Average Return":
-        average_return(
-            returns
-        ),
+    stats["Average Return"] = average_return(
+        returns
+    )
 
-        "Sharpe":
-        sharpe_ratio(
-            returns,
-            risk_free_rate
-        ),
+    stats["Sharpe"] = sharpe_ratio(
+        returns,
+        risk_free_rate
+    )
 
-        "Max Drawdown":
-        max_drawdown(
-            [initial_value] +
-            list(np.cumprod(
-                np.array(returns) + 1
-            ) * initial_value)
-        )
+    stats["Max Drawdown"] = max_drawdown(
+        value_history
+    )
 
-    }
+    return stats
